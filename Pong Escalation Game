@@ -1,0 +1,80 @@
+import pygame, time, sys, random, math
+
+WHITE = (255, 255, 255)
+
+pygame.init()
+screen = pygame.display.set_mode((1300,600))
+pygame.display.set_caption('Escalate')
+
+
+class Player1:
+    def __init__(self, x, y, r, g, b, ra, height, w, spd):
+        self.x = x
+        self.y = y
+        self.r = r
+        self.g = g
+        self.b = b
+        self.ra = ra
+        self.height = height
+        self.w = w
+        self.spd = spd
+
+    def display_p(self):
+
+        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.ra, self.height), self.w)
+
+    def move(self):
+        key = pygame.key
+        pygame.event.pump()
+
+        if key.get_pressed()[pygame.K_a] and self.y > 0:
+            self.y -= self.spd
+        if key.get_pressed()[pygame.K_d] and self.y < 600-self.height:
+            self.y += self.spd
+
+
+class Player2:
+    def __init__(self, x, y, r, g, b, ra, height, w, spd2):
+        self.x = x
+        self.y = y
+        self.r = r
+        self.g = g
+        self.b = b
+        self.ra = ra
+        self.height = height
+        self.w = w
+        self.spd2 = spd2
+
+    def display_p(self):
+        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.ra, self.height), self.w)
+
+    def move(self):
+        key = pygame.key
+        pygame.event.pump()
+
+        if key.get_pressed()[pygame.K_RIGHT] and self.y > 0:
+            self.y -= self.spd2
+        if key.get_pressed()[pygame.K_LEFT] and self.y < 600-self.height:
+            self.y += self.spd2
+
+
+player_list = []
+
+pygame.display.flip()
+player_list.append(Player1(0, 300, 0, 0, 255, 20, 100, 0, 1.7))
+player_list.append(Player2(1280, 300, 0, 0, 255, 20, 100, 0, 1.7))
+
+while 1:
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        if pygame.key.name(pygame.K_a) == 'w':
+            sys.exit()
+
+    screen.fill(WHITE)
+    for player in player_list:
+        player.display_p()
+        player.move()
+
+    pygame.display.update()
