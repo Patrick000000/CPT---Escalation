@@ -1,4 +1,5 @@
-#Added ball physics that interact with walls, but not paddles yet.  Press k to begin ball movement.  Change the initial ball trajectory from 180 to something esle by changing the initial_ball_angle variable to the desired angle.
+#Added ball physics that interact with walls, but not paddles yet.  Press k to begin ball movement.  
+#Change the initial ball trajectory from 180 to something esle by changing the initial_ball_angle variable to the desired angle.
 
 import pygame, time, sys, random, math
 
