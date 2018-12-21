@@ -6,6 +6,9 @@ pygame.init()
 screen = pygame.display.set_mode((1300,600))
 pygame.display.set_caption('Escalate')
 
+moving = 1
+initial_ball_angle = 180
+
 
 class Player1:
     def __init__(self, x, y, r, g, b, ra, height, w, spd):
@@ -58,23 +61,88 @@ class Player2:
             self.y += self.spd2
 
 
-player_list = []
+def angle_math(angle):
+    core = angle
 
-pygame.display.flip()
+    if core in range(91):
+        difference = (90 - core) * 2
+        return difference
+
+    if core in range(91, 181):
+        difference2 = (180 - core) * 2
+        return difference2
+
+    if core in range(181, 271):
+        difference3 = (270 - core) * 2
+        return difference3
+
+    if core in range(271, 361):
+        difference4 = (360 - core) * 2
+        return difference4
+
+
+class MainBall:
+    def __init__(self, x11, y11, r, g, b, ra, w, england, spd2):
+        self.x11 = x11
+        self.y11 = y11
+        self.r = r
+        self.g = g
+        self.b = b
+        self.ra = ra
+        self.w = w
+        self.england = england
+        self.spd2 = spd2
+
+    def display_circle(self):
+        pygame.draw.circle(screen, (self.r, self.g, self.b), (int(self.x11), int(self.y11)), self.ra, self.w)
+
+    def move_circle(self):
+        global moving
+        key = pygame.key
+        pygame.event.pump()
+
+        if moving == 2:
+            if key.get_pressed()[pygame.K_i]:
+                moving -= 1
+        if moving == 1:
+            if key.get_pressed()[pygame.K_k]:
+                moving += 1
+
+        if self.england > 360:
+            self.england = self.england % 360
+
+        ang = angle_math(self.england)
+
+        if self.y11 < 0 or self.y11 > 600 or self.x11 < 0 or self.x11 > 1300:
+            self.england = self.england + ang + 180
+
+        angle1 = math.radians(self.england)
+
+        if moving == 2:
+            self.x11 += math.cos(angle1) * self.spd2
+            self.y11 -= math.sin(angle1) * self.spd2
+
+
+player_list = []
 player_list.append(Player1(0, 300, 0, 0, 255, 20, 100, 0, 1.7))
 player_list.append(Player2(1280, 300, 0, 0, 255, 20, 100, 0, 1.7))
+ball = MainBall(650, 300, 0, 0, 200, 10, 0, initial_ball_angle, 1)
+
+
+pygame.display.flip()
 
 while 1:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        if pygame.key.name(pygame.K_a) == 'w':
-            sys.exit()
 
     screen.fill(WHITE)
     for player in player_list:
         player.display_p()
         player.move()
+
+    ball.display_circle()
+    ball.move_circle()
 
     pygame.display.update()
