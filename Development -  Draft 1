@@ -1,3 +1,5 @@
+#Wall bouncing system bugged! Sometimes bounces back at paddle.
+
 import pygame, time, sys, random, math
 import pygame.freetype
 
