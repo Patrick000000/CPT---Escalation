@@ -28,27 +28,6 @@ start_timer = 0
 
 time_val = 2
 
-
-def angle_math(angle):
-    core = angle
-
-    if core >= 0 and core < 90:
-        difference = (90 - core) * 2
-        return int(difference)
-
-    elif core >= 90 and core <= 180:
-        difference2 = (180 - core) * 2
-        return int(difference2)
-
-    elif core >= 180 and core <= 270:
-        difference3 = (270 - core) * 2
-        return int(difference3)
-
-    elif core >= 270 and core <= 360:
-        difference4 = (360 - core) * 2
-        return int(difference4)
-
-
 def ang_paddles(widest_point, option, midpoint_num, midpoint_length, hit):
 
     if option == 1:
