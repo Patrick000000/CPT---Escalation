@@ -1,27 +1,148 @@
 import pygame, time, sys, random, math
+import pygame.freetype
 
 WHITE = (255, 255, 255)
 
 pygame.init()
+pygame.font.init()
 screen = pygame.display.set_mode((1300,600))
+my_font = pygame.font.SysFont('Consolas', 60)
+my_font2 = pygame.font.SysFont('Consolas', 20)
 pygame.display.set_caption('Escalate')
+
+# -Physics, movement, geometry
+Died = [False, False]
+Left = True
+moving = False
+initial_ball_angle = 180
+ball_rad = 10
+ball_speed = 6
+
+# -Player data
+player_width = 20
+player_length = 120
+
+# -Start Menu
+started = False
+
+# -Abilities:
+# [0] = Player 1
+# [1] = Player 2
+
+Railgun_Pl = [False, False]
+Railgun_lvl = [1, 1]
+Railgun_toggle = [False, False]
+R_bounce_prt1 = [False, False]
+R_bounce_prt2 = [False, False]
+
+Blink_Pl = [False, False]
+
+def Railgun(lvl, player, player2, angle, x, y):
+
+    key = pygame.key
+    pygame.event.pump()
+
+    boost = 0
+    boost2 = 0
+
+    ang = 0
+    ang2 = 0
+
+    if player == 1:
+        Railgun_Pl[0] = True
+    if player2 == 1:
+        Railgun_Pl[1] = True
+
+    if Railgun_Pl[0] is True:
+        if Left is True or Died[1] is True:
+            Railgun_toggle[0] = False
+            R_bounce_prt1[0] = False
+            R_bounce_prt2[0] = False
+            Died[1] = False
+        if Railgun_toggle[0] is True and R_bounce_prt2[0] is True:
+            if lvl == 1:
+                boost = 4
+                ang = 0
+            if lvl == 2:
+                boost = 8
+                ang = 0
+            if lvl == 3:
+                boost = 10
+                ang = 0
+        else:
+            boost = 0
+            ang = angle
+
+        if Railgun_Pl[1] is True:
+            if Left is False or Died[0] is True:
+                Railgun_toggle[1] = False
+                R_bounce_prt1[1] = False
+                R_bounce_prt2[1] = False
+                Died[0] = False
+            if Railgun_toggle[1] is True and R_bounce_prt2[1] is True:
+                if lvl == 1:
+                    boost2 = 4
+                    ang2 = 180
+                if lvl == 2:
+                    boost2 = 8
+                    ang2 = 180
+                if lvl == 3:
+                    boost2 = 10
+                    ang2 = 180
+            else:
+                boost2 = 0
+                ang2 = angle
+
+
+    return boost, ang, boost2, ang2
+
+
+def ang_paddles(widest_point, option, midpoint_num, midpoint_length, hit):
+
+    if option == 1:
+        if midpoint_length >= hit:
+            difference = midpoint_length - hit
+            increment = (90 - widest_point)/midpoint_num
+            degrees_deviation = difference * increment
+            scaled_num = degrees_deviation
+            return scaled_num
+        if midpoint_length <= hit:
+            difference = hit - midpoint_length
+            increment2 = (90 - widest_point)/midpoint_num
+            degrees_deviation2 = difference * increment2
+            scaled_num2 = 360 - degrees_deviation2
+            return scaled_num2
+
+    elif option == 2:
+        if midpoint_length >= hit:
+            difference = midpoint_length - hit
+            increment3 = (90 - widest_point)/midpoint_num
+            degrees_deviation3 = difference * increment3
+            scaled_num3 = 180 - degrees_deviation3
+            return scaled_num3
+        if midpoint_length <= hit:
+            difference = hit - midpoint_length
+            increment4 = (90 - widest_point)/midpoint_num
+            degrees_deviation4 = difference * increment4
+            scaled_num4 = 180 + degrees_deviation4
+            return scaled_num4
 
 
 class Player1:
-    def __init__(self, x, y, r, g, b, ra, height, w, spd):
+    def __init__(self, x, y, r, g, b, width, height, w, spd):
         self.x = x
         self.y = y
         self.r = r
         self.g = g
         self.b = b
-        self.ra = ra
+        self.width = width
         self.height = height
         self.w = w
         self.spd = spd
 
     def display_p(self):
 
-        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.ra, self.height), self.w)
+        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.width, self.height), self.w)
 
     def move(self):
         key = pygame.key
@@ -34,19 +155,19 @@ class Player1:
 
 
 class Player2:
-    def __init__(self, x, y, r, g, b, ra, height, w, spd2):
+    def __init__(self, x, y, r, g, b, width, height, w, spd2):
         self.x = x
         self.y = y
         self.r = r
         self.g = g
         self.b = b
-        self.ra = ra
+        self.width = width
         self.height = height
         self.w = w
         self.spd2 = spd2
 
     def display_p(self):
-        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.ra, self.height), self.w)
+        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.width, self.height), self.w)
 
     def move(self):
         key = pygame.key
@@ -59,22 +180,210 @@ class Player2:
 
 
 player_list = []
+PL1 = Player1(0, 300, 0, 0, 255, player_width, player_length, 0, 6)
+PL2 = Player2(1280, 300, 0, 0, 255, player_width, player_length, 0, 6)
+player_list.append(PL1)
+player_list.append(PL2)
+
+transfer_x1 = PL1.x
+transfer_y1 = PL1.y
+transfer_x2 = PL2.x
+transfer_y2 = PL2.y
+
+
+class MainBall:
+    def __init__(self, x11, y11, r, g, b, ra, w, angle, spd):
+        self.x11 = x11
+        self.y11 = y11
+        self.r = r
+        self.g = g
+        self.b = b
+        self.ra = ra
+        self.w = w
+        self.angle = angle
+        self.spd = spd
+
+    def display_circle(self):
+        pygame.draw.circle(screen, (self.r, self.g, self.b), (int(self.x11), int(self.y11)), self.ra, self.w)
+
+    def move_circle(self, Pla1, Pla2):
+        global player_length, ball_rad, Left, ball_speed, R_bounce_prt1, R_bounce_prt2, Died
+        key = pygame.key
+        pygame.event.pump()
+
+        inst_x1 = Pla1.x
+        inst_y1 = Pla1.y
+        inst_x2 = Pla2.x
+        inst_y2 = Pla2.y
+
+        # -angle bounce physics ---
+
+        # -for walls
+        if self.angle > 360:
+            self.angle = self.angle % 360
+
+        if self.y11-ball_rad < 0:
+            if self.angle >= 90 and self.angle <= 180 and Left is True:
+                self.angle = 360 - self.angle
+                self.y11 += ball_speed
+            if self.angle >= 0 and self.angle < 90 and Left is False:
+                self.angle = 360 - self.angle
+                self.y11 += ball_speed
+
+        if self.y11 + ball_rad > 600:
+            if self.angle > 180 and self.angle < 270 and Left is True:
+                self.angle = 360 - self.angle
+                self.y11 -= ball_speed
+            if self.angle > 270 and self.angle <= 360 and Left is False:
+                self.angle = 360 - self.angle
+                self.y11 -= ball_speed
+
+
+        if self.x11 - ball_rad < 0:
+            self.x11 = 650
+            self.y11 = 300
+            if self.angle >= 90 and self.angle <= 270:
+                self.angle = 180
+            Died[0] = True
+
+        if self.x11 + ball_rad > 1300:
+            self.x11 = 650
+            self.y11 = 300
+            if self.angle > 270 and self.angle <= 360 or self.angle > 0 and self.angle < 90:
+                self.angle = 0
+            Died[1] = True
+
+
+        # -for paddles
+        if self.x11-ball_rad < 20 and self.y11 + ball_rad > inst_y1 and self.y11 - ball_rad < inst_y1 + player_length:
+            if self.angle > 360:
+                self.angle = self.angle % 360
+            self.angle = ang_paddles(20, 1, player_length/2, inst_y1 + (player_length/2), self.y11)
+            if Left is True:
+                Left = False
+            if R_bounce_prt1[0] is True:
+                R_bounce_prt2[0] = True
+
+
+
+        if self.x11+ball_rad > 1280 and self.y11 + ball_rad > inst_y2 and self.y11 - ball_rad < inst_y2 + player_length:
+            if self.angle > 360:
+                self.angle = self.angle % 360
+            self.angle = ang_paddles(20, 2, player_length/2, inst_y2 + (player_length / 2), self.y11)
+            if Left is False:
+                    Left = True
+            if R_bounce_prt1[1] is True:
+                R_bounce_prt2[1] = True
+
+
+        # ---
+
+        # --------
+
+        # -railgun effects ---
+
+        if R_bounce_prt2[0] and Railgun_toggle[0] is True:
+            self.angle = Railgun(3, 1, 1, self.angle, self.x11, self.y11)[1]
+            self.spd = ball_speed + Railgun(3, 1, 1, self.angle, self.x11, self.y11)[0]
+        if R_bounce_prt2[1] and Railgun_toggle[1] is True:
+            self.angle = Railgun(3, 1, 1, self.angle, self.x11, self.y11)[3]
+            self.spd = ball_speed + Railgun(3, 1, 1, self.angle, self.x11, self.y11)[2]
+
+        angle1 = math.radians(self.angle)
+
+        # -ball moving math ---
+
+        if moving is True:
+            self.x11 += math.cos(angle1) * self.spd
+            self.y11 -= math.sin(angle1) * self.spd
+
+        # -------
+
+r1 = 0
+r2 = 0
+r3 = 0
+
+ball = MainBall(650, 300, 0, 150, 200, ball_rad, 0, initial_ball_angle, ball_speed)
+
+
+def starting():
+    global Menu, started, r1, r2, r3
+    pygame.event.pump()
+    key = pygame.key
+
+    title = my_font.render('E S C A L A T E', False, (23, 0, 45))
+    start = my_font2.render('S T A R T', False, (r1, r2, r3))
+    intro = my_font2.render('I N T R O', False, (23, 0, 45))
+
+    mouse = pygame.mouse
+    x = mouse.get_pos()[0]
+    y = mouse.get_pos()[1]
+
+    screen.fill(WHITE)
+    screen.blit(title, (402.5, 100))
+    screen.blit(start, (600.5, 300))
+    screen.blit(intro, (600.5, 355))
+
+    if x >= 600.5 and x <= 699.5 and y >= 300 and y <= 321:
+        if r1 < 200:
+            r1 += 12
+        if r2 < 200:
+            r2 += 12
+        if r3 < 250:
+            r3 += 18
+    else:
+        if r1 > 1:
+            r1 -= 12
+        if r2 > 1:
+            r2 -= 12
+        if r3 > 1:
+            r3 -= 18
+
 
 pygame.display.flip()
-player_list.append(Player1(0, 300, 0, 0, 255, 20, 100, 0, 1.7))
-player_list.append(Player2(1280, 300, 0, 0, 255, 20, 100, 0, 1.7))
-
+fps = 120
+clock = pygame.time.Clock()
 while 1:
+
+    mouse = pygame.mouse
+    x = mouse.get_pos()[0]
+    y = mouse.get_pos()[1]
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        if pygame.key.name(pygame.K_a) == 'w':
-            sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN and x >= 600.5 and x <= 699.5 and y >= 300 and y <= 321:
+            started = True
 
-    screen.fill(WHITE)
-    for player in player_list:
-        player.display_p()
-        player.move()
+        # -Toggles
 
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_w:
+                if Railgun_toggle[0] is False:
+                    Railgun_toggle[0] = not Railgun_toggle[0]
+                    R_bounce_prt1[0] = not R_bounce_prt1[0]
+                    R_bounce_prt2[0] = False
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP:
+                if Railgun_toggle[1] is False:
+                    Railgun_toggle[1] = not Railgun_toggle[1]
+                    R_bounce_prt1[1] = not R_bounce_prt1[1]
+                    R_bounce_prt2[1] = False
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_k:
+                moving = not moving
+
+    if started is False:
+        starting()
+
+    if started is True:
+        screen.fill(WHITE)
+        for player in player_list:
+            player.display_p()
+            player.move()
+
+        ball.display_circle()
+        ball.move_circle(PL1, PL2)
+
+    time_passed = clock.tick(fps)
     pygame.display.update()
