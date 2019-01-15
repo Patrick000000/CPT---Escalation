@@ -1,3 +1,5 @@
+#All code with all update dates here. Go to the main file section if you need to dowload it.
+
 #Added ball physics that interact with walls, but not paddles yet.  Press k to begin ball movement.  
 #Change the initial ball trajectory from 180 to something else by changing the initial_ball_angle variable to the desired angle.
 #Paddle interaction and lose detection (teleports ball back to middle) now complete, Pong template complete. (1/4/2019)
