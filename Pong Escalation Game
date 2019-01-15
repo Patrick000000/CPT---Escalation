@@ -36,9 +36,10 @@ ball_yloc = 300
 # [0] = Player 1
 # [1] = Player 2
 player_width = 20
-player_length = 120
+player_length = [120, 120]
 player_mana = [200, 200]
 player_mana_display = [100, 100]
+player_speed = [6, 6]
 
 # -Start Menu
 started = False
@@ -85,7 +86,47 @@ shield_loc1 = [0, 0]
 shield_loc2 = [0, 0]
 shield_cost = 35   # -The thing cycle through twice so shield cost is actually shield_cost*2
 
+growth_pl = [False, False]
+growth_lvl = [3, 1]
 
+speed_pl = [False, False]
+speed_lvl = [3, 1]
+
+def speed():
+    global player_speed, speed_lvl
+
+    if growth_pl[0] is True:
+        if speed_lvl[0] == 1:
+            player_speed[0] = 6
+        if speed_lvl[0] == 2:
+            player_speed[0] = 7
+        if speed_lvl[0] == 3:
+            player_speed[0] = 9
+    if growth_pl[1] is True:
+        if speed_lvl[1] == 1:
+            player_speed[1] = 6
+        if speed_lvl[1] == 2:
+            player_speed[1] = 7
+        if speed_lvl[1] == 3:
+            player_speed[1] = 9
+
+def growth():
+    global growth_pl, growth_lvl
+
+    if growth_pl[0] is True:
+        if growth_lvl[0] == 1:
+            player_length[0] = 130
+        if growth_lvl[0] == 2:
+            player_length[0] = 140
+        if growth_lvl[0] == 3:
+            player_length[0] = 200
+    if growth_pl[1] is True:
+        if growth_lvl[1] == 1:
+            player_length[1] = 130
+        if growth_lvl[1] == 2:
+            player_length[1] = 140
+        if growth_lvl[1] == 3:
+            player_length[1] = 140
 
 def blink(lvl, x, paddle_y, paddle_y2, ball_y):
     global blink_button, counter1, counter2, slow_effect, timer_status
@@ -110,7 +151,7 @@ def blink(lvl, x, paddle_y, paddle_y2, ball_y):
 
     if blink_pl[0] is True and x < 650:
         if lvl == 1 and counter1[0] < 2 and blink_button[0] is True and Left is True:
-            y1[0] = paddle_y + player_length/2
+            y1[0] = paddle_y + player_length[0]/2
             counter1[0] += 1
             if player_mana[0] - blink_cost < 0:
                 player_mana[0] = player_mana[0] - (player_mana[0] - (blink_cost - player_mana[0]))
@@ -120,7 +161,7 @@ def blink(lvl, x, paddle_y, paddle_y2, ball_y):
             timer_status[0] = True
             return y1[0]
         if lvl == 2 and counter1[1] < 3 and blink_button[0] is True and Left is True:
-            y1[1] = paddle_y + player_length/2
+            y1[1] = paddle_y + player_length[0]/2
             counter1[1] += 1
             if player_mana[0] - blink_cost < 0:
                 player_mana[0] = player_mana[0] - (player_mana[0] - (blink_cost - player_mana[0]))
@@ -130,7 +171,7 @@ def blink(lvl, x, paddle_y, paddle_y2, ball_y):
             timer_status[0] = True
             return y1[1]
         if lvl == 3 and counter1[2] < 4 and blink_button[0] is True and Left is True:
-            y1[2] = paddle_y + player_length/2
+            y1[2] = paddle_y + player_length[0]/2
             counter1[2] += 1
             if player_mana[0] - blink_cost < 0:
                 player_mana[0] = player_mana[0] - (player_mana[0] - (blink_cost - player_mana[0]))
@@ -144,7 +185,7 @@ def blink(lvl, x, paddle_y, paddle_y2, ball_y):
 
     if blink_pl[1] is True and x > 650:
         if lvl == 1 and counter2[0] < 2 and blink_button[1] is True and Left is False:
-            y2[0] = paddle_y2 + player_length / 2
+            y2[0] = paddle_y2 + player_length[1] / 2
             counter2[0] += 1
             if player_mana[1] - blink_cost < 0:
                 player_mana[1] = player_mana[1] - (player_mana[1] - (blink_cost - player_mana[1]))
@@ -154,7 +195,7 @@ def blink(lvl, x, paddle_y, paddle_y2, ball_y):
             timer_status[0] = True
             return y2[0]
         if lvl == 2 and counter2[1] < 3 and blink_button[1] is True and Left is False:
-            y2[1] = paddle_y2 + player_length / 2
+            y2[1] = paddle_y2 + player_length[1] / 2
             counter2[1] += 1
             if player_mana[1] - blink_cost < 0:
                 player_mana[1] = player_mana[1] - (player_mana[1] - (blink_cost - player_mana[1]))
@@ -164,7 +205,7 @@ def blink(lvl, x, paddle_y, paddle_y2, ball_y):
             timer_status[0] = True
             return y2[1]
         if lvl == 3 and counter2[2] < 4 and blink_button[1] is True and Left is False:
-            y2[2] = paddle_y2 + player_length / 2
+            y2[2] = paddle_y2 + player_length[1] / 2
             counter2[2] += 1
             if player_mana[1] - blink_cost < 0:
                 player_mana[1] = player_mana[1] - (player_mana[1] - (blink_cost - player_mana[1]))
@@ -187,19 +228,20 @@ def Railgun():
             Railgun_toggle[0] = False
             R_bounce_prt1[0] = False
             R_bounce_prt2[0] = False
-        if Died[1] is True and R_bounce_prt2[0] is True and Railgun_toggle[0] is True:
+        if Died[1] is True:
             Railgun_toggle[0] = False
             R_bounce_prt1[0] = False
             R_bounce_prt2[0] = False
             Died[1] = False
             Died[0] = False
+            print('hoy')
 
     if Railgun_Pl[1] is True:
         if Left is False and R_bounce_prt2[1] is True and Railgun_toggle[1] is True:
             Railgun_toggle[1] = False
             R_bounce_prt1[1] = False
             R_bounce_prt2[1] = False
-        if Died[0] is True and R_bounce_prt2[1] is True and Railgun_toggle[1] is True:
+        if Died[0] is True:
             Railgun_toggle[1] = False
             R_bounce_prt1[1] = False
             R_bounce_prt2[1] = False
@@ -224,14 +266,14 @@ def shield(lvl):
             timer_status[2] = True
 
     if lvl == 1:
-        size_y[0] = player_length
-        size_y[1] = player_length
+        size_y[0] = player_length[0]
+        size_y[1] = player_length[1]
     if lvl == 2:
-        size_y[0] = player_length + 50
-        size_y[1] = player_length + 50
+        size_y[0] = player_length[0] + 50
+        size_y[1] = player_length[1] + 50
     if lvl == 3:
-        size_y[0] = player_length + 100
-        size_y[1] = player_length + 100
+        size_y[0] = player_length[0] + 100
+        size_y[1] = player_length[1] + 100
 
     return size_y[0], size_y[1]
 
@@ -306,59 +348,57 @@ def ang_paddles(widest_point, option, midpoint_num, midpoint_length, hit):
 
 
 class Player1:
-    def __init__(self, x, y, r, g, b, width, height, w, spd):
+    def __init__(self, x, y, r, g, b, width, w):
         self.x = x
         self.y = y
         self.r = r
         self.g = g
         self.b = b
         self.width = width
-        self.height = height
         self.w = w
-        self.spd = spd
 
     def display_p(self):
 
-        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.width, self.height), self.w)
+        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.width, player_length[0]), self.w)
 
     def move(self):
+        global player_speed
+
         key = pygame.key
         pygame.event.pump()
 
         if key.get_pressed()[pygame.K_a] and self.y > 0:
-            self.y -= self.spd
-        if key.get_pressed()[pygame.K_d] and self.y < 600-self.height:
-            self.y += self.spd
+            self.y -= player_speed[0]
+        if key.get_pressed()[pygame.K_d] and self.y < 600 - player_length[0]:
+            self.y += player_speed[0]
 
 
 class Player2:
-    def __init__(self, x, y, r, g, b, width, height, w, spd2):
+    def __init__(self, x, y, r, g, b, width, w):
         self.x = x
         self.y = y
         self.r = r
         self.g = g
         self.b = b
         self.width = width
-        self.height = height
         self.w = w
-        self.spd2 = spd2
 
     def display_p(self):
-        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.width, self.height), self.w)
+        pygame.draw.rect(screen, (self.r, self.g, self.b), (int(self.x), int(self.y), self.width, player_length[1]), self.w)
 
     def move(self):
         key = pygame.key
         pygame.event.pump()
 
         if key.get_pressed()[pygame.K_RIGHT] and self.y > 0:
-            self.y -= self.spd2
-        if key.get_pressed()[pygame.K_LEFT] and self.y < 600-self.height:
-            self.y += self.spd2
+            self.y -= player_speed[1]
+        if key.get_pressed()[pygame.K_LEFT] and self.y < 600 - player_length[1]:
+            self.y += player_speed[1]
 
 
 player_list = []
-PL1 = Player1(0, 300, 0, 0, 255, player_width, player_length, 0, 6)
-PL2 = Player2(1280, 300, 0, 0, 255, player_width, player_length, 0, 6)
+PL1 = Player1(0, 300, 0, 0, 255, player_width, 0)
+PL2 = Player2(1280, 300, 0, 0, 255, player_width, 0)
 player_list.append(PL1)
 player_list.append(PL2)
 
@@ -435,20 +475,20 @@ class MainBall:
 
 
         # -for paddles
-        if self.x11-ball_rad < 20 and self.y11 + ball_rad > inst_y1 and self.y11 - ball_rad < inst_y1 + player_length:
+        if self.x11-ball_rad < 20 and self.y11 + ball_rad > inst_y1 and self.y11 - ball_rad < inst_y1 + player_length[0]:
             if self.angle > 360:
                 self.angle = self.angle % 360
-            self.angle = ang_paddles(30, 1, player_length/2, inst_y1 + (player_length/2), self.y11)
+            self.angle = ang_paddles(30, 1, player_length[0]/2, inst_y1 + (player_length[0]/2), self.y11)
             if Left is True:
                 Left = False
             if R_bounce_prt1[0] is True:
                 R_bounce_prt2[0] = True
 
 
-        if self.x11+ball_rad > 1280 and self.y11 + ball_rad > inst_y2 and self.y11 - ball_rad < inst_y2 + player_length:
+        if self.x11+ball_rad > 1280 and self.y11 + ball_rad > inst_y2 and self.y11 - ball_rad < inst_y2 + player_length[1]:
             if self.angle > 360:
                 self.angle = self.angle % 360
-            self.angle = ang_paddles(30, 2, player_length/2, inst_y2 + (player_length / 2), self.y11)
+            self.angle = ang_paddles(30, 2, player_length[1]/2, inst_y2 + (player_length[1]/2), self.y11)
             if Left is False:
                     Left = True
             if R_bounce_prt1[1] is True:
@@ -475,17 +515,17 @@ class MainBall:
             if Railgun_lvl[0] == 1:
                 self.spd = 12
             if Railgun_lvl[0] == 2:
-                self.spd = 14
+                self.spd = 15
             if Railgun_lvl[0] == 3:
-                self.spd = 16
+                self.spd = 18
             self.angle = 0
         if R_bounce_prt2[1] is True and Railgun_toggle[1] is True:
             if Railgun_lvl[1] == 1:
                 self.spd = 12
             if Railgun_lvl[1] == 2:
-                self.spd = 14
+                self.spd = 15
             if Railgun_lvl[1] == 3:
-                self.spd = 16
+                self.spd = 18
             self.angle = 180
 
         if Railgun_toggle[0] is True:
@@ -681,7 +721,6 @@ while 1:
             timer_status[0] = False
             seconds = 0
 
-
     if started is False:
         starting()
 
@@ -695,6 +734,8 @@ while 1:
         ball.display_circle()
         ball.move_circle(PL1, PL2)
         display_mana()
+        growth()
+        speed()
 
     time_passed = clock.tick(fps)
     pygame.display.update()
